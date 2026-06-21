@@ -1,122 +1,159 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Layouts
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// Auth Pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+
+// Dashboard
+import Dashboard from "./pages/dashboard/Dashboard";
+
+// Number Search
+import SearchNumber from "./pages/search/SearchNumber";
+import SearchResult from "./pages/search/SearchResult";
+
+// Contacts
+import SavedContacts from "./pages/contacts/SavedContacts";
+import ContactDetails from "./pages/contacts/ContactDetails";
+
+// History
+import SearchHistory from "./pages/history/SearchHistory";
+
+// Reports
+import ReportNumber from "./pages/reports/ReportNumber";
+import ReportsList from "./pages/reports/ReportsList";
+
+// Notifications
+import Notifications from "./pages/notifications/Notifications";
+
+// Profile
+import Profile from "./pages/profile/Profile";
+
+// Settings
+import Settings from "./pages/settings/Settings";
+
+// Help Center
+import FAQ from "./pages/help/FAQ";
+import ContactSupport from "./pages/help/ContactSupport";
+import Terms from "./pages/help/Terms";
+import Privacy from "./pages/help/Privacy";
+import About from "./pages/help/About";
+
+// Admin
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import ReportManagement from "./pages/admin/ReportManagement";
+import Analytics from "./pages/admin/Analytics";
+
+// Hooks
+import { useAuth } from "./hooks/useAuth";
+import { useTheme } from "./hooks/useTheme";
+
+// Protected Route Component
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && user?.role !== "admin") {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme={theme === "dark" ? "dark" : "light"}
+      />
+
+      <Routes>
+        {/* Auth Routes */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
+
+        {/* Main App Routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
         >
-          Count is {count}
-        </button>
-      </section>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/search" element={<SearchNumber />} />
+          <Route path="/search/result/:id" element={<SearchResult />} />
+          <Route path="/contacts" element={<SavedContacts />} />
+          <Route path="/contacts/:id" element={<ContactDetails />} />
+          <Route path="/history" element={<SearchHistory />} />
+          <Route path="/reports" element={<ReportsList />} />
+          <Route path="/reports/new" element={<ReportNumber />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help/faq" element={<FAQ />} />
+          <Route path="/help/support" element={<ContactSupport />} />
+          <Route path="/help/terms" element={<Terms />} />
+          <Route path="/help/privacy" element={<Privacy />} />
+          <Route path="/help/about" element={<About />} />
+        </Route>
 
-      <div className="ticks"></div>
+        {/* Admin Routes */}
+        <Route
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/reports" element={<ReportManagement />} />
+          <Route path="/admin/analytics" element={<Analytics />} />
+        </Route>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
